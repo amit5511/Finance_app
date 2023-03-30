@@ -6,13 +6,6 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "server/configure/.env" });
 
 
-const cors=require('cors');
-app.use(cors({
-    credentials: true,
-    origin:['http://localhost:3000'],
-   
-   
-}));
 
 //mogodb connection
 const db_connection = require('./configure/dbConnection');

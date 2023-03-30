@@ -2,6 +2,7 @@ const crypto=require('crypto')
 const tokenService = require('../services/token-service')
 const User = require('../models/user_model')
 const { sendEmail } = require('../utils/sendEmail')
+const AccountDetails = require('../models/account_model')
 
 
 
@@ -16,10 +17,12 @@ const login = async (req, res, next) => {
             throw new Error("Please entre all fildes !!")
         } else {
             //checking user is register or not
-            let user = await User.findOne({ email: email });
+            
+            let user = await User.findOne({ email: email }).select("+password")
+            .populate('bank_details').exec();
             if (!user)
                 throw new Error("User Not Found!!")
-
+              
             //checking password is correct or not
             const isMatch = await user.comparePassword(password);
            
@@ -31,7 +34,8 @@ const login = async (req, res, next) => {
             res.cookie('accessToken', accessToken, {
                 expireIn: 1000 * 60 * 60 * 30 * 24,
                 httpOnly: true
-            })
+            }) 
+            
             res.status(201).json({
                 user,
                 message: "User login successfully",
@@ -49,17 +53,19 @@ const login = async (req, res, next) => {
 
 const register = async (req, res) => {
     try {
-        const { email, password, confirmPassword } = req.body
+        const { email,password,name } = req.body
 
-        if (!email || !password || !confirmPassword) {
+        if (!email||!password||!name) {
             throw new Error("Please entre all fildes !!")
         } else {
-            if (password !== confirmPassword)
-                throw new Error("Passwords do not match")
-
-            const user = await User.create({ email, password })
-
-            const { accessToken } = tokenService.generateToken({ _id: user._id });
+             let user= await User.findOne({email:email});
+             if(!user){
+                user = await User.create({ email,password,name})
+             }else
+             throw new Error("User already registered !!")
+                 
+           
+           const { accessToken } = tokenService.generateToken({ _id: user._id });
            
             //cookies expires in 1 year
             res.cookie('accessToken', accessToken, {
@@ -87,7 +93,7 @@ const loadUser = async (req, res) => {
     try {
 
         const { _id } = req.user;
-        const user = await User.findById(_id);
+        const user = await User.findById(_id).populate('bank_details').exec();
         res.status(201).json({
             user,
             success: true,
@@ -107,7 +113,8 @@ const logOutUser = async (req, res) => {
 
         res.cookie('accessToken',"", {
             expireIn: Date.now(),
-            httpOnly: true
+            httpOnly: true,
+           
         })
        
 
@@ -145,11 +152,11 @@ const resetPasswordToken = async (req, res) => {
         await user.save();
 
         //valid for production level 
-        const resetPasswordUrl = `${req.protocol}://${req.get('host')}/api/v1/password/reset/${resetpasswordToken}`;
+        const Url = `${req.protocol}://${req.get('host')}/api/v1/password/reset/${resetpasswordToken}`;
         // console.log(resetPasswordUrl)
         //user in development level
        // const url=`http://localhost:8000/api/v1/password/reset/${resetpasswordToken}`
-       // const resetPasswordUrl = `Your password reset token is :- \n\n ${url} \n\n If you have not requested thsi email then please ignore it `;
+       const resetPasswordUrl = `Your password reset token is :- \n\n ${Url} \n\n Expire in 5 minutes If you have not requested thsi email then please ignore it `;
 
         //send otp on user email
         const options = {
@@ -208,7 +215,8 @@ const resetPassword = async (req, res) => {
 
        res.cookie('accessToken', accessToken, {
             expireIn: 1000 * 60 * 60 * 30 * 24,
-            httpOnly: true
+            httpOnly: true,
+           
         })
 
         res.status(201).json({
@@ -225,9 +233,91 @@ const resetPassword = async (req, res) => {
     }
 }
 
+//user account add
+const addaccount=async(req,res)=>{
+    try {
+        const {name,bank_name,ifsc,account_no,type}=req.body;
+        if(!name||!bank_name||!ifsc||!account_no||!type)
+             throw new Error("All Field required");
+        // if(type!=="current"||type!=="savings")
+        //     {   console.log(type)
+        //         throw new Error("Account type only can be current or savings");}
+         
+    
+       
+        if(req.user.bank_details) 
+            throw new Error("Bank details already added");
+        //add account
+          const account = await AccountDetails.create({
+            name,
+            bank_name,
+            ifsc,
+            account_no,
+            type
+          });
+          
+          let user=await User.findById({_id:req.user._id});
+            user.bank_details=account._id;
+           await user.save();
+
+         res.status(201).json({
+            success:true,
+            message:"Account added successfully"
+         })
+
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
+
+const withdrawRequest=async(req,res)=>{
+    try {
+        
+        const _id=req.user._id;
+
+        let user = await User.findById(_id);
+        if(!user.bank_details)
+        throw new Error("Add your Bank account");
+
+        if(!user.available_to_withdraw||user.available_to_withdraw<=0)
+           throw new Error("Insufficient Withdraw balance");
+          
+           if(user.withdraw_request.length!=0)
+               {
+                return res.status(401).json({
+                    success:false,
+                    message:"Amount already in processing"
+                })
+               }
+               const data={
+                amount:user.available_to_withdraw,
+
+               }
+            user.withdraw_request=[data];
+            user.available_to_withdraw=0;
+            await user.save();
+            res.status(201).json({
+                user,
+                success:true,
+                message:"Your withdraw request in processing"
+            })
+
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:error.message
+        })
+    }
+}
+
 module.exports = {
     register, loadUser, login,logOutUser,
-    resetPassword,resetPasswordToken
+    resetPassword,resetPasswordToken,
+    addaccount,
+    withdrawRequest
 
 
 }

@@ -1,7 +1,9 @@
 const router = require('express').Router();
 const {register,login,loadUser,logOutUser,
     resetPasswordToken,
-    resetPassword
+    resetPassword,
+    addaccount,
+    withdrawRequest
 }=require('../controller/userController');
 const authMiddleware = require('../middleware/auth-middleware');
 
@@ -20,6 +22,16 @@ router.route('/password/reset/:token').put(resetPassword);
 
 //logout user
 router.route('/logout-user').get(logOutUser);
+
+
+//bank account setup
+router.route('/addaccount').put(authMiddleware.isAuth,addaccount);
+
+//withdraw request
+router.route('/withdrawrequest').get(authMiddleware.isAuth,withdrawRequest);
+
+
+
 
 
 
