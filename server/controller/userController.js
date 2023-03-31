@@ -4,7 +4,9 @@ const User = require('../models/user_model')
 const { sendEmail } = require('../utils/sendEmail')
 const AccountDetails = require('../models/account_model')
 
-
+//configure dot env
+const dotenv = require("dotenv");
+dotenv.config({ path: "../configure/.env" });
 
 
 
@@ -33,7 +35,9 @@ const login = async (req, res, next) => {
             const { accessToken } = tokenService.generateToken({ _id: user._id });
             res.cookie('accessToken', accessToken, {
                 expireIn: 1000 * 60 * 60 * 30 * 24,
-                httpOnly: true
+                httpOnly: true,
+                sameSite: process.env.dev === "development" ? true : "none",
+                secure: process.env.dev === "development" ? false : true,
             }) 
             
             res.status(201).json({
@@ -70,7 +74,9 @@ const register = async (req, res) => {
             //cookies expires in 1 year
             res.cookie('accessToken', accessToken, {
                 expireIn: 1000 * 60 * 60 * 30 * 24,
-                httpOnly: true
+                httpOnly: true,
+                sameSite: process.env.dev === "development" ? true : "none",
+                secure: process.env.dev === "development" ? false : true
             })
             res.status(201).json({
                 user,
@@ -114,6 +120,8 @@ const logOutUser = async (req, res) => {
         res.cookie('accessToken',"", {
             expireIn: Date.now(),
             httpOnly: true,
+            sameSite: process.env.dev === "development" ? true : "none",
+                secure: process.env.dev === "development" ? false : true
            
         })
        
@@ -216,6 +224,9 @@ const resetPassword = async (req, res) => {
        res.cookie('accessToken', accessToken, {
             expireIn: 1000 * 60 * 60 * 30 * 24,
             httpOnly: true,
+            sameSite: process.env.dev === "development" ? true : "none",
+                secure: process.env.dev === "development" ? false : true,
+                
            
         })
 

@@ -35,7 +35,7 @@ app.use('/api/v1/admin',admin_router);
 app.get('*',(req,res)=>{
     res.status(201).json({
         success:true,
-        message:"Runing fine"
+        message:"Running fine"
     })
 })
 
