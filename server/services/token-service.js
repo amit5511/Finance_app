@@ -11,7 +11,7 @@ class TokenService{
      generateToken(payload){
       
          const accessToken =jwt.sign(payload,accesstokensecreat,{
-            expiresIn:'1y'
+            expiresIn:'30d'
         })
          return {accessToken};
     }

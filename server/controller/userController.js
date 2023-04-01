@@ -34,7 +34,7 @@ const login = async (req, res, next) => {
             //generating access token
             const { accessToken } = tokenService.generateToken({ _id: user._id });
             res.cookie('accessToken', accessToken, {
-                expireIn: 1000 * 60 * 60 * 30 * 24,
+                maxAge:1000*60*60*24*30,
                 httpOnly: true,
                 sameSite: process.env.dev === "development" ? true : "none",
                 secure: process.env.dev === "development" ? false : true,
@@ -73,7 +73,7 @@ const register = async (req, res) => {
            
             //cookies expires in 1 year
             res.cookie('accessToken', accessToken, {
-                expireIn: 1000 * 60 * 60 * 30 * 24,
+                maxAge:1000*60*60*24*30,
                 httpOnly: true,
                 sameSite: process.env.dev === "development" ? true : "none",
                 secure: process.env.dev === "development" ? false : true
@@ -117,8 +117,8 @@ const loadUser = async (req, res) => {
 const logOutUser = async (req, res) => {
     try {
 
-        res.cookie('accessToken',"", {
-            expireIn: Date.now(),
+            res.cookie('accessToken',"", {
+            expireIn:Date.now(),
             httpOnly: true,
             sameSite: process.env.dev === "development" ? true : "none",
                 secure: process.env.dev === "development" ? false : true
@@ -222,7 +222,7 @@ const resetPassword = async (req, res) => {
         const { accessToken } = tokenService.generateToken({ _id: user._id });
 
        res.cookie('accessToken', accessToken, {
-            expireIn: 1000 * 60 * 60 * 30 * 24,
+        maxAge:1000*60*60*24*30,
             httpOnly: true,
             sameSite: process.env.dev === "development" ? true : "none",
                 secure: process.env.dev === "development" ? false : true,
