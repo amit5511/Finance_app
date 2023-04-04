@@ -1,30 +1,67 @@
 const mongoose = require('mongoose');
 
 const accountSchema = new mongoose.Schema({
-    name:{
-        type:String,
-        required:[true,"Account Holder name required"],
-        minLength:3
+    accountHolderName: {
+        type: String,
+        required: [true, "Account Holder name required"],
+        minLength: 3
     },
-    bank_name:{
-        type:String,
-        required:[true,"Bankname is required"]
+    bankName: {
+        type: String,
+        required: [true, "Bankname is required"]
     },
-    ifsc:{
-        type:String,
-        required:[true,"IFSC is required"]
+    ifsc: {
+        type: String,
+        required: [true, "IFSC is required"]
     },
-    account_no:{
-        type:String,
-        required:[true,"Account number is required"],
-        unique:[true,"Account number not unique"]
+    accountNo: {
+        type: String,
+        required: [true, "Account number is required"],
+        unique: [true, "Account number not unique"]
     },
-    type:{
-        type:String,
-        required:[true,"Account type is required"],
-        default:"savings"
-    }
+    accountType: {
+        type: String,
+        required: [true, "Account type is required"],
+        default: "savings"
+    },
+    beneficiaries: [{
+        accountHolderName: {
+            type: String,
+            required: [true, "Account Holder name required"],
+            minLength: 3
+        },
+        bankName: {
+            type: String,
+            required: [true, "Bankname is required"]
+        },
+        ifsc: {
+            type: String,
+            required: [true, "IFSC is required"]
+        },
+        accountNo: {
+            type: String,
+            required: [true, "Account number is required"],
+            unique: [true, "Account number not unique"]
+        },
+        accountType: {
+            type: String,
+            required: [true, "Account type is required"],
+            default: "savings"
+        }
+    },
+
+    
+    ],
+    user: {
+        type: mongoose.Schema.ObjectId,
+        required: true,
+        unique: true,
+        ref: "User",
+        select:false
+    },
+    
+
 })
 
-const AccountDetails = mongoose.model("AccountDetails",accountSchema);
-module.exports=AccountDetails;
+const AccountDetails = mongoose.model("AccountDetails", accountSchema);
+module.exports = AccountDetails;

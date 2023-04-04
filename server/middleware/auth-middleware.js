@@ -27,7 +27,7 @@ class Auth_middleware {
         try {
             if(req.user.isAdmin!=="admin")
             throw new Error("User not allowed to access admin route")
-              console.log(req.user.isAdmin)
+             // console.log(req.user.isAdmin)
           
             next();
             
