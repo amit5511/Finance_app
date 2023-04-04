@@ -1,5 +1,5 @@
 const AccountDetails = require("../models/account_model");
-const Transactions = require("../models/transaction_Model");
+const Transactions = require('../models/transaction_model')
 const Userkyc = require("../models/userKyc_model");
 const User = require("../models/user_model");
 const cloudinary =require('cloudinary')
