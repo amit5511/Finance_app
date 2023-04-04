@@ -7,7 +7,7 @@ const {register,login,loadUser,logOutUser,
     allTransactions,addKyc, updateKyc,
     getaccount,
     updateaccount,
-    getKyc,getbeneficiaries,addbeneficiarie,updatebeneficiarie,deletebeneficiarie
+    getKyc//,getbeneficiaries,addbeneficiarie,updatebeneficiarie,deletebeneficiarie
 }=require('../controller/userController');
 const authMiddleware = require('../middleware/auth-middleware');
 
