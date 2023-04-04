@@ -3,7 +3,7 @@ const tokenService = require('../services/token-service')
 const User = require('../models/user_model')
 const { sendEmail } = require('../utils/sendEmail')
 const AccountDetails = require('../models/account_model')
-const Transactions = require('../models/transaction_Model')
+const Transactions = require('../models/transaction_model')
 const cloudinary = require('cloudinary');
 //configure dot env
 const dotenv = require("dotenv");
