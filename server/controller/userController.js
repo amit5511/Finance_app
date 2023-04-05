@@ -328,7 +328,7 @@ const addaccount = async (req, res) => {
             if (bankDetails)
                 throw new Error("Bank details already added");
             //add account
-
+          
             bankDetails = await AccountDetails.create({
                 accountHolderName,
                 bankName,
@@ -337,12 +337,12 @@ const addaccount = async (req, res) => {
                 accountType,
                 user: req.user._id
             });
-
+           console.log('d')
             const user = await User.findById(req.user._id);
             user.bankDetails = bankDetails._id;
             await user.save();
 
-            bankDetails.beneficiaries = undefined;
+            //bankDetails.beneficiaries = undefined;
             res.status(201).json({
                 success: true,
                 message: "Account added successfully",
@@ -382,7 +382,7 @@ const updateaccount = async (req, res) => {
             await bankDetails.save();
 
 
-            bankDetails.beneficiaries = undefined;
+           // bankDetails.beneficiaries = undefined;
             res.status(201).json({
                 success: true,
                 bankDetails,
@@ -415,16 +415,16 @@ const withdrawRequest = async (req, res) => {
 
         if (user.withdrawableamount <= 0)
             throw new Error("Insufficient Withdraw balance");
-        console.log("hello")
-        const Transaction = await Transactions.findOne({ user: _id });
+        //console.log("hello")
+        let Transaction = await Transactions.findOne({ user: _id });
         //if user doinf transaction first time
         //console.log(user)
         if (!Transaction) {
-            await Transactions.create({
+            Transaction=  await Transactions.create({
                 bankDetails: user.bankDetails,
                 user: user._id
             });
-            Transaction.transactions = []
+           // Transaction.transactions = []
 
         }
         let withdrawrequest = Transaction.transactions;
@@ -436,12 +436,12 @@ const withdrawRequest = async (req, res) => {
         withdrawrequest.unshift(newTransaction);
         user.withdrawableamount = 0;
         user.locekdAmount = 0;
-
+     
 
         await Transaction.save();
         await user.save();
         res.status(201).json({
-            user,
+            Transaction:Transaction.transactions[0],
             success: true,
             message: "Your withdraw request in processing"
         })
@@ -555,130 +555,6 @@ const updateKyc = async (req, res) => {
 }
 
 
-// const getbeneficiaries = async (req, res) => {
-//     try {
-//         let beneficiaries = await AccountDetails.findOne({ user: req.user._id });
-//         beneficiaries = beneficiaries.beneficiaries;
-//         res.status(200).json({
-//             success: true,
-//             beneficiaries
-//         })
-//     } catch (error) {
-//         res.status(500).json({
-//             success: false,
-//             message: error.message
-//         })
-//     }
-// }
-
-
-// const addbeneficiarie = async (req, res) => {
-//     try {
-//         const { accountHolderName, bankName, ifsc, accountNo, accountType } = req.body;
-//         if (!accountHolderName || !bankName || !ifsc || !accountNo || !accountType)
-//             throw new Error("All filed required");
-//         if (accountType === "current" || accountType === "savings") {
-
-//             const bankDetails = await AccountDetails.findOne({ user: req.user._id })
-//             if (!bankDetails)
-//                 throw new Error("Fistely add bank account to add beneficiarie");
-
-//             //add beneficiaries
-//             const data = {
-//                 accountHolderName, bankName, ifsc, accountNo, accountType
-//             }
-
-//             bankDetails.beneficiaries.unshift(data);
-//             await bankDetails.save();
-
-//             res.status(201).json({
-//                 success: true,
-//                 beneficiaries: bankDetails.beneficiaries,
-//                 message: "Beneficiarie added successfully"
-//             })
-//         } else
-//             throw new Error("Account type only can be current or savings");
-
-//     } catch (error) {
-//         res.status(500).json({
-//             success: false,
-//             message: error.message
-//         })
-//     }
-// }
-
-
-
-// const updatebeneficiarie = async (req, res) => {
-//     try {
-//         const beneficiarieId = req.params.beneficiarie_id;
-//         const { accountHolderName, bankName, ifsc, accountNo, accountType } = req.body;
-//         if (!accountHolderName || !bankName || !ifsc ||!accountNo || !accountType)
-//             throw new Error("All fileds required");
-//         if (accountType && (accountType === "current" || accountType === "savings")){
-//             const bankDetails = await AccountDetails.findOne({ user: req.user._id })
-
-//             const beneficiarie = bankDetails.beneficiaries.filter(data => data._id == beneficiarieId)[0];
-//             if (!beneficiarie)
-//                 throw new Error("Beneficiarie not found");
-
-//             //update beneficiaries
-//             // console.log(beneficiarie)
-//             beneficiarie.accountHolderName = accountHolderName;
-//             beneficiarie.bankName = bankName;
-//             beneficiarie.ifscifsc
-//             beneficiarie.accountNo = accountNo;
-//             beneficiarie.accountType = accountType
-
-//             await bankDetails.save();
-
-//             res.status(201).json({
-//                 success: true,
-//                 beneficiaries: bankDetails.beneficiaries,
-//                 message: "Beneficiarie updated successfully"
-//             })
-//         } else
-//             throw new Error("Account type only can be current or savings");
-
-
-//     } catch (error) {
-//         res.status(500).json({
-//             success: false,
-//             message: error.message
-//         })
-//     }
-// }
-
-
-
-
-// const deletebeneficiarie = async (req, res) => {
-//     try {
-//         const beneficiarieId = req.params.beneficiarie_id;
-//         const bankDetails = await AccountDetails.findOne({ user: req.user._id });
-//         const updatedbeneficiarie = bankDetails.beneficiaries.filter(data => data._id != beneficiarieId);
-
-//         if (bankDetails.beneficiaries.length==updatedbeneficiarie.length)
-//                 throw new Error("Beneficiarie not found");
-
-//         bankDetails.beneficiaries = updatedbeneficiarie;
-//        // console.log( bankDetails)
-
-//         await bankDetails.save();
-
-//         res.status(200).json({
-//             success: true,
-//             beneficiaries: updatedbeneficiarie,
-//             message: "Beneficiarie deleted successfully"
-//         })
-//     } catch (error) {
-//         console.log(error)
-//         res.status(404).json({
-//             success: false,
-//             message: error.message
-//         })
-//     }
-// }
 
 module.exports = {
     register, loadUser, login, logOutUser,
@@ -689,5 +565,5 @@ module.exports = {
     updateKyc
     , addKyc, getaccount, updateaccount,
     getKyc
-   // , addbeneficiarie, getbeneficiaries, deletebeneficiarie, updatebeneficiarie
+  
 }

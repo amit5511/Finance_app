@@ -47,14 +47,7 @@ router.route('/add-kyc').post(authMiddleware.isAuth,addKyc);
 //kyc update
 router.route('/update-kyc').put(authMiddleware.isAuth,updateKyc);
 
-// //get All beneficiaries list
-// router.route('/get-beneficiarie').get(authMiddleware.isAuth,getbeneficiaries);
-// //add beneficiaries
-// router.route('/add-beneficiarie').put(authMiddleware.isAuth,addbeneficiarie);
-// //modify beneficiaries
-// router.route('/update-beneficiarie/:beneficiarie_id').put(authMiddleware.isAuth,updatebeneficiarie);
-// //delete beneficiaries
-// router.route('/delete-beneficiarie/:beneficiarie_id').delete(authMiddleware.isAuth,deletebeneficiarie);
+
 
 
 //See all transactions

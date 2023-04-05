@@ -113,7 +113,7 @@ const getWithdraw_request = async (req, res) => {
             const transaction = transactions[i];
             if (transaction.transactions[0].status != "Credited to the beneficiary") {
 
-                transaction.bankDetails.beneficiaries = undefined;
+                //transaction.bankDetails.beneficiaries = undefined;
                 const userObject = {
                     name: transaction.user.name,
                     email: transaction.user.email,
@@ -184,8 +184,7 @@ const changeStatus = async (req, res) => {
         res.status(201).json({
            
             success: true,
-            message: withdrawrequest.status = "Processed" ? "Status update successfully" :
-                "Credited to the beneficiary"
+            message:status
         })
     } catch (error) {
         res.status(400).json({
@@ -270,7 +269,7 @@ const userBankDetails = async (req, res) => {
         const bankDetail = await AccountDetails.findOne({ user: userId });
         if (!bankDetail)
             throw new Error("Bank details not found");
-        bankDetail.beneficiaries = undefined;
+       // bankDetail.beneficiaries = undefined;
         res.status(200).json({
             success: true,
             message: "Bank details found",
@@ -307,7 +306,7 @@ const userTransactions = async (req, res) => {
 const allUserBankdetailsfunction = async (req, res) => {
     try {
         const allUsersBankDetails = await AccountDetails.find({}).select("+user").populate("user").exec();
-        allUsersBankDetails.beneficiaries = undefined;
+       // allUsersBankDetails.beneficiaries = undefined;
 
         const alluserbankdetails = [];
 
